@@ -43,6 +43,10 @@ type FlowState = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
+  addNode: (node: Partial<Node>) => void;
+  updateNode: (id: string, data: any) => void;
+  deleteNode: (id: string) => void;
+  clearCanvas: () => void;
 };
 
 type Storage = EnsureJson<{
@@ -72,6 +76,47 @@ const useStore = create<WithLiveblocks<FlowState>>()(
       onConnect: (connection: Connection) => {
         set({
           edges: addEdge(connection, get().edges),
+        });
+      },
+
+      // Add a new node
+      addNode: (node: Partial<Node>) => {
+        const newNode: Node = {
+          id: node.id || `node-${Date.now()}`,
+          type: node.type || "default",
+          position: node.position || { x: 250, y: 250 },
+          data: node.data || { label: "New Node" },
+          ...node,
+        };
+        set({
+          nodes: [...get().nodes, newNode],
+        });
+      },
+
+      // Update a node's data
+      updateNode: (id: string, data: any) => {
+        set({
+          nodes: get().nodes.map((node) =>
+            node.id === id ? { ...node, data: { ...node.data, ...data } } : node
+          ),
+        });
+      },
+
+      // Delete a node
+      deleteNode: (id: string) => {
+        set({
+          nodes: get().nodes.filter((node) => node.id !== id),
+          edges: get().edges.filter(
+            (edge) => edge.source !== id && edge.target !== id
+          ),
+        });
+      },
+
+      // Clear the entire canvas
+      clearCanvas: () => {
+        set({
+          nodes: [],
+          edges: [],
         });
       },
     }),

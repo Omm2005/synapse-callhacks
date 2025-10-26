@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef } from "react";
-import ReactFlow, { Controls, MiniMap } from "reactflow";
+import React, { useCallback, useEffect, useRef, useMemo } from "react";
+import ReactFlow, { Controls, MiniMap, Background } from "reactflow";
 import { RoomProvider, useUpdateMyPresence } from "@/liveblocks.config";
 import { CursorsOverlay } from "@/components/cursors/cursors-overlay";
 import useStore from "@/lib/store";
 import styles from "@/app/index.module.css";
+import { EmptyCanvas } from "./empty-canvas";
+import { AddNodeButton } from "./add-node-button";
+import CustomNode from "./custom-node";
 
 type CollaborativeFlowProps = {
   roomId: string;
@@ -23,7 +26,29 @@ function FlowWithCursors({ userName, userAvatar }: { userName: string; userAvata
     onNodesChange,
     onEdgesChange,
     onConnect,
+    addNode,
   } = useStore();
+
+  const handleAddNode = useCallback(() => {
+    // Calculate center position or random position
+    const newNode = {
+      type: "custom",
+      position: { 
+        x: Math.random() * 500 + 100, 
+        y: Math.random() * 300 + 100 
+      },
+      data: { label: "New Node" },
+    };
+    addNode(newNode);
+  }, [addNode]);
+
+  // Define custom node types - use CustomNode for all types
+  const nodeTypes = useMemo(() => ({ 
+    custom: CustomNode,
+    default: CustomNode,
+    input: CustomNode,
+    output: CustomNode,
+  }), []);
 
   // Set user info on mount
   useEffect(() => {
@@ -93,12 +118,18 @@ function FlowWithCursors({ userName, userAvatar }: { userName: string; userAvata
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        nodeTypes={nodeTypes}
         fitView
+        deleteKeyCode="Delete"
       >
+        <Background />
         <MiniMap />
         <Controls />
       </ReactFlow>
       <CursorsOverlay />
+      
+      {/* Show empty state when no nodes */}
+      {nodes.length === 0 && <EmptyCanvas onCreateNode={handleAddNode} />}
     </div>
   );
 }

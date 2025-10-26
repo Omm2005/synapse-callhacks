@@ -53,3 +53,15 @@ export const verifications = pgTable("verification", {
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 });
+
+// Canvases table (flowcharts/chats)
+export const canvases = pgTable("canvas", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull().default("Untitled Canvas"),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  roomId: text("roomId").notNull().unique(), // Liveblocks room ID
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});

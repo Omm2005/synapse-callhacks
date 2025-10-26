@@ -8,6 +8,13 @@
       "when": 1761425116266,
       "tag": "0000_fancy_proteus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1761438395457,
+      "tag": "0001_dashing_azazel",
+      "breakpoints": true
     }
   ]
 }
